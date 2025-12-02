@@ -26,9 +26,10 @@ jobs:
           USER: ${{ secrets.EC2_USER }}
         run: |
           ssh $USER@$HOST << 'EOF'
+            set -e
             cd /var/www/app
             git pull origin main
-            source venv/bin/activate 2>/dev/null || true
-            pip install . || true
-            sudo systemctl restart api-test || true
+            source venv/bin/activate 2>/dev/null
+            pip install .
+            sudo systemctl restart apt-test
           EOF
