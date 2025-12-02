@@ -31,5 +31,5 @@ jobs:
             git pull origin main
             source venv/bin/activate 2>/dev/null
             pip install .
-            sudo systemctl restart apt-test
+            sudo systemctl restart api-test
           EOF
