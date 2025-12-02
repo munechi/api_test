@@ -17,3 +17,8 @@ def sub(a: int, b: int) -> int:
 @app.get("/mul/{a}/{b}")
 def sub(a: int, b: int) -> int:
     return int(a) * int(b)
+
+
+@app.get("/div/{a}/{b}")
+def sub(a: int, b: int) -> int:
+    return int(a) / int(b)
