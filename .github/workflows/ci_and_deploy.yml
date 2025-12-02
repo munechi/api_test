@@ -1,0 +1,61 @@
+name: CI and Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - ci-test
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f pyproject.toml ]; then pip install ".[dev]"; fi
+
+      - name: Run tests
+        run: |
+          pytest
+
+  deploy:
+    needs: ci
+    if: github.event_name == "push" && github.ref == "refs/heads/main"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy via git pull
+        env:
+          HOST: ${{ secrets.EC2_HOST }}
+          USER: ${{ secrets.EC2_USER }}
+        run: |
+          ssh $USER@$HOST << 'EOF'
+            set -e
+            cd /var/www/app
+            git pull origin main
+            source venv/bin/activate 2>/dev/null
+            pip install .
+            sudo systemctl restart api-test
+          EOF
