@@ -1,0 +1,23 @@
+# venv
+venv/
+.venv/
+
+# python cache
+*.pyc
+__pycache__/
+.pytest_cache/
+
+# dist
+dist/
+build/
+*.egg-info/
+
+# pytest-coverage
+.coverage
+coverage.xml
+
+# vscode
+.vscode/
+
+# docs
+site/
